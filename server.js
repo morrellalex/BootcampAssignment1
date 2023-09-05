@@ -6,6 +6,8 @@ var http = require('http'),
 /* Global variables */
 var listingData, server;
 
+
+
 var requestHandler = function(request, response) {
   var parsedUrl = url.parse(request.url);
 
@@ -24,9 +26,21 @@ var requestHandler = function(request, response) {
     HINT: Explore the list of MIME Types
     https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
    */
+  
+  if(parsedUrl.path.localeCompare("/listings") != 0){
+    console.log(parsedUrl.path);
+    response.writeHead(404, {"Content-Type": "text.html"});
+    response.end("Bad gateway error");
+  }
+  else{
+    response.writeHead(200, {"Content-Type": "application/json"});
+    response.end(listingData);
+  };
+
 };
 
-fs.readFile('listings.json', 'utf8', function(err, data) {
+
+fs.readFile('listings.json', 'utf8', function(error, data) {
   /*
     This callback function should save the data in the listingData variable, 
     then start the server. 
@@ -36,16 +50,22 @@ fs.readFile('listings.json', 'utf8', function(err, data) {
 
     HINT: Read up on JSON parsing Node.js
    */
-
-    //Check for errors
   
-
+  if (error) {
+    console.error(error);
+    return;
+  }
+  listingData = data;
+  
+    //Check for errors
    //Save the sate in the listingData variable already defined
   
 
   //Creates the server
-  
+  var server = http.createServer(requestHandler);
   //Start the server
-
+  server.listen(port, function() {
+    console.log('Server listening on: http://127.0.0.1:' + port);
+  });
 
 });
